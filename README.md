@@ -1,11 +1,10 @@
-# ssh_HELP-
-Made because people in my class found it difficult to SSH into their Raspberry pi 4's
 
-# PiAccess
+# SSHIT!
 
-**Dead-simple SSH access to your headless Raspberry Pi. Forever.**
+**"Just get an hdmi bro"**
 
-No more hunting for IP addresses. Your Pi broadcasts its own Wi-Fi hotspot. Connect to it, SSH in. Done.
+This allows the Pi to broadcast an AP that YOU can connect and finally SSH into!
+
 
 ---
 
