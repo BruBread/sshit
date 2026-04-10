@@ -103,7 +103,7 @@ pihelp() {
     echo -e "  ${_BYLW}sudo pilock [password]${_NC}  Add a password to the AP"
     echo -e "  ${_BYLW}sudo piunlock${_NC}            Remove AP password (open network)"
     echo -e "  ${_BYLW}sudo piwifi${_NC}              Scan and connect to a Wi-Fi network"
-    echo -e "  ${_BYLW}sudo piconnect <ssid>${_NC}   Connect to a specific network"
+    echo -e "  ${_BYLW}sudo piconnect <ssid> [password]${_NC}   Connect to a specific network"
     echo -e "  ${_BYLW}sudo piupdate${_NC}            Check for and install SSHit updates"
     echo -e "  ${_DIM}────────────────────────────────────${_NC}"
     echo -e "  ${_DIM}AP mode:     Pi broadcasts ${_BYLW}${AP_SSID:-pi-USERNAME}${_DIM}, SSH to 10.0.0.1${_NC}"
@@ -342,6 +342,12 @@ piconnect() {
     if [ -z "$SSID" ]; then
         _pa_err "Usage: sudo piconnect <ssid> [password]"
         return 1
+    fi
+
+    # If no password was passed as argument, prompt interactively
+    if [ -z "$PASS" ]; then
+        read -rsp "  Password for '${SSID}' (leave blank if open network): " PASS
+        echo ""
     fi
 
     echo ""
