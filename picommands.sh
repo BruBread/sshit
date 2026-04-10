@@ -355,6 +355,21 @@ piconnect() {
 
     echo ""
 
+    # Save credentials to state BEFORE touching networking
+    # so netwatcher can reconnect on reboot if needed
+    if [ -f "$_PA_STATE" ]; then
+        if grep -q "^CLIENT_SSID=" "$_PA_STATE"; then
+            sed -i "s/^CLIENT_SSID=.*/CLIENT_SSID=${SSID}/" "$_PA_STATE"
+        else
+            echo "CLIENT_SSID=${SSID}" >> "$_PA_STATE"
+        fi
+        if grep -q "^CLIENT_PASS=" "$_PA_STATE"; then
+            sed -i "s/^CLIENT_PASS=.*/CLIENT_PASS=${PASS}/" "$_PA_STATE"
+        else
+            echo "CLIENT_PASS=${PASS}" >> "$_PA_STATE"
+        fi
+    fi
+
     # Only stop AP if it's currently running
     if pgrep hostapd > /dev/null 2>&1; then
         _pa_info "Turning off AP..."
@@ -392,6 +407,7 @@ EOF
         CONNECTED_SSID=$(iwgetid -r 2>/dev/null)
         if [ "$CONNECTED_SSID" = "$SSID" ]; then
             HOME_IP=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -v "^$" | head -1)
+            # Only save client mode NOW that connection is confirmed
             _pa_save_mode "client"
             echo ""
             _pa_ok "Connected to: ${_BYLW}${SSID}"
@@ -408,6 +424,7 @@ EOF
     echo ""
     _pa_err "Could not connect to '${SSID}'"
     _pa_warn "Check the password and try again. Restarting AP..."
+    # Connection failed — restore AP mode in state so reboot is safe
     _pa_start_ap && _pa_ok "AP is back up: ${_BYLW}${AP_SSID}"
     echo ""
     return 1
