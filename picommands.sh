@@ -34,7 +34,8 @@ _pa_need_root() {
         # Build quoted args to forward safely
         local ARGS=""
         for arg in "$@"; do ARGS="$ARGS $(printf '%q' "$arg")"; done
-        exec sudo bash -c "source $HOME/.piaccess/picommands.sh && $CMD $ARGS"
+        sudo bash -c "source $HOME/.piaccess/picommands.sh && $CMD $ARGS"
+        return $?
     fi
 }
 
@@ -108,6 +109,7 @@ pihelp() {
     echo -e "  ${_BYLW}piwifi${_NC}              Scan and connect to a Wi-Fi network"
     echo -e "  ${_BYLW}piconnect <ssid> [password]${_NC}   Connect to a specific network"
     echo -e "  ${_BYLW}piupdate${_NC}            Check for and install SSHit updates"
+    echo -e "  ${_BYLW}pirestart${_NC}           Reboot the Pi"
     echo -e "  ${_DIM}────────────────────────────────────${_NC}"
     echo -e "  ${_DIM}AP mode:     Pi broadcasts ${_BYLW}${AP_SSID:-pi-USERNAME}${_DIM}, SSH to 10.0.0.1${_NC}"
     echo -e "  ${_DIM}Client mode: Pi joins your network, AP off${_NC}"
@@ -532,8 +534,34 @@ piupdate() {
     echo ""
     echo -e "  ${_BYLW}⚠️  Reload your shell:${_NC}  ${_BWHT}source ~/.bashrc${_NC}"
     echo ""
-    
+
+    read -p "$(echo -e "  ${_BWHT}Reboot now to apply changes? (y/n):${_NC} ")" reboot_confirm
+    if [ "$reboot_confirm" = "y" ]; then
+        _pa_info "Rebooting..."
+        sleep 1
+        reboot
+    else
+        _pa_warn "Reboot skipped. Some changes may not take effect until you reboot."
+        echo ""
+    fi
+
     return 0
+}
+
+# ── pirestart ─────────────────────────────────────────────────
+pirestart() {
+    _pa_need_root "pirestart" "$@" || return 1
+
+    echo ""
+    read -p "$(echo -e "  ${_BWHT}Reboot the Pi now? (y/n):${_NC} ")" confirm
+    if [ "$confirm" = "y" ]; then
+        _pa_info "Rebooting..."
+        sleep 1
+        reboot
+    else
+        _pa_warn "Reboot cancelled."
+        echo ""
+    fi
 }
 
 # ── Auto-check on login ───────────────────────────────────────
