@@ -34,7 +34,7 @@ _pa_need_root() {
         # Cache sudo credentials upfront so individual sudo calls don't prompt mid-function
         sudo -v 2>/dev/null || { _pa_err "sudo authentication failed"; return 1; }
         # Re-call this function as root via sudo, keeping the terminal attached
-        sudo bash -i -c "source $HOME/.piaccess/picommands.sh && $CMD ${@:2}" < /dev/tty
+        sudo bash -i -c "source $HOME/.piaccess/picommands.sh && $CMD ${@:2}"
         return $?
     fi
 }
