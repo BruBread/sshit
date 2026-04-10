@@ -1,73 +1,81 @@
 # SSHIT!
+
 **"Just get an HDMI bro"**
+
+![Repo size](https://img.shields.io/github/repo-size/BruBread/sshit)
+![Stars](https://img.shields.io/github/stars/BruBread/sshit?style=social)
+![Last commit](https://img.shields.io/github/last-commit/BruBread/sshit)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+---
+
+## What This Is
+
+Turns your Raspberry Pi into its own Wi-Fi access point so you can SSH into it directly.
 
 ---
 
 ## How It Works
 
-Once installed, your Pi broadcasts an open Wi-Fi network named after your username (e.g. `pi-john`).  
-Connect your laptop to that network and SSH to `10.0.0.1` or `username@hostname.local`.
+After install, the Pi creates an open Wi-Fi network named after your username (e.g. `pi-john`).
+
+Connect → SSH → done.
 
 ```
-Laptop → connects to "pi-john" Wi-Fi → ssh john@10.0.0.1 → you're in
+Laptop → connects to "pi-john" → ssh john@10.0.0.1
 ```
 
-The AP turns off when you connect the Pi to a network via `piwifi` or `piconnect`.  
-If that connection drops, the AP automatically comes back up on its own.
+* Use `10.0.0.1` or `username@hostname.local`
+* If the Pi connects to another network (`piwifi`, `piconnect`), the AP shuts off
+* If that connection drops, the AP comes back automatically
 
 ---
 
 ## First-Time Setup
 
-You only need to SSH in the old way once to run the installer. After that, you never need to again.
+Only needed once.
 
-### Step 1 — Flash Pi OS Lite
+### 1 — Flash Pi OS Lite
 
-Download and flash **Raspberry Pi OS Lite (64-bit)** using  
-[Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+Download and flash:
+https://www.raspberrypi.com/software/
 
 Path:
+
 > Raspberry Pi 4 → Other OS → Debian 64 Lite
 
 Set:
-- **Hostname:** `francispi` (or whatever you want — just keep it the same each time)
-- **Username:** `francis` (or whatever you want — **keep this the same too!**)
-- **Password** (remember this)
-- **Your home Wi-Fi SSID and password**
 
-> 💡 **Pro tip:** Use the same username and hostname every time you flash a Pi.  
-> This way, SSH just works without editing `known_hosts` constantly.
+* **Hostname:** `francispi` (keep it consistent)
+* **Username:** `francis` (same)
+* **Password**
+* Your Wi-Fi SSID + password
 
-This pre-configures SSH and Wi-Fi so the Pi connects on first boot.
+> Using the same hostname + username avoids SSH key conflicts later.
 
 ---
 
-### Step 2 — Boot the Pi
+### 2 — Boot
 
-Insert the SD card (or USB drive), power on, wait ~60 seconds.
+Insert storage, power on, wait ~60 seconds.
 
 ---
 
-### Step 3 — SSH In (One Time Only)
-
-Try this first:
+### 3 — SSH In
 
 ```bash
 ssh francis@francispi.local
 ```
 
-(Replace `francis` and `francispi` with whatever you set in Step 1)
+If it fails (usually Windows), get the IP from your router:
 
-> Works on macOS/Linux. Unreliable on Windows — if it fails, log into your router and find the Pi's IP, then:
 ```bash
 ssh francis@<ip>
 ```
 
 ---
 
-### Step 4 — Install SSHit
-
-Once you're in:
+### 4 — Install
 
 ```bash
 sudo apt install git
@@ -76,77 +84,70 @@ cd sshit
 sudo bash install.sh
 ```
 
-The installer will:
-- install `hostapd` and `dnsmasq`
-- configure a Wi-Fi AP named `pi-<yourusername>`
-- add `pi*` commands to your shell
-- set up auto-start and auto-recovery on every boot
+This installs:
 
-After it finishes, reboot:
+* `hostapd` + `dnsmasq`
+* Wi-Fi AP (`pi-<username>`)
+* `pi*` commands
+* auto-start + recovery
+
+Reboot after:
 
 ```bash
 sudo reboot
 ```
 
-Wait ~60 seconds.
-
 ---
 
-### Step 5 — Connect the Easy Way (Forever)
+### 5 — Connect
 
-1. Join Wi-Fi: **`pi-francis`** (no password)  
-2. SSH in:
+Join:
+
+```
+pi-francis
+```
+
+Then:
 
 ```bash
 ssh francis@10.0.0.1
 ```
 
-That’s it. No more finding the IP.
-
 ---
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `pihelp` | Show all commands |
-| `pistatus` | Current mode, IPs, connected clients |
-| `sudo piap` | Switch back to AP mode |
-| `sudo pilock [password]` | Add a password to the AP |
-| `sudo piunlock` | Remove AP password (open network) |
-| `sudo piwifi` | Scan and connect to a Wi-Fi network |
-| `sudo piconnect <ssid> [pw]` | Connect to a specific network |
-| `pisaved` | View and remove saved networks |
-| `piadd [ssid] [password]` | Add a network to auto-connect list |
-| `sudo piupdate` | Check for and install SSHit updates |
-| `pirestart` | Reboot the Pi |
+| Command                      | Description        |
+| ---------------------------- | ------------------ |
+| `pihelp`                     | List commands      |
+| `pistatus`                   | Mode, IPs, clients |
+| `sudo piap`                  | Force AP mode      |
+| `sudo pilock [password]`     | Add AP password    |
+| `sudo piunlock`              | Remove password    |
+| `sudo piwifi`                | Scan + connect     |
+| `sudo piconnect <ssid> [pw]` | Direct connect     |
+| `pisaved`                    | Saved networks     |
+| `piadd [ssid] [password]`    | Add network        |
+| `sudo piupdate`              | Update             |
+| `pirestart`                  | Reboot             |
 
 ### Examples
 
 ```bash
-# See what's going on
 pistatus
 
-# Add a password to the AP
-sudo pilock mysecretpass
-# (or just run sudo pilock and it'll prompt you)
+sudo pilock mypass
 
-# Connect Pi to your home network
 sudo piwifi
 
-# Switch back to AP mode manually
 sudo piap
 
-# Check for updates
 sudo piupdate
 
-# View and manage saved networks
 pisaved
 
-# Add a network without connecting now
 piadd myssid mypassword
 
-# Reboot the Pi
 pirestart
 ```
 
@@ -154,39 +155,31 @@ pirestart
 
 ## Supported Hardware
 
-- Raspberry Pi 4 (all RAM variants)
-- Pi OS Lite (Bookworm, 64-bit recommended)
-- Also works booting from USB
+* Raspberry Pi 4
+* Pi OS Lite (Bookworm, 64-bit)
+* USB or SD boot
 
 ---
 
 ## Troubleshooting
 
-### "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!"
-
-This happens if you reflash or reinstall. New OS = new SSH keys.
-
-Fix (pick one):
+### SSH key warning
 
 ```bash
-# Option 1
 ssh-keygen -R francispi.local
-
-# Option 2
-# Edit ~/.ssh/known_hosts and delete the line
-
-# Option 3 (nuclear)
-rm ~/.ssh/known_hosts   # macOS/Linux
-del C:\Users\user\.ssh\known_hosts   # Windows
 ```
 
-Then reconnect and type `yes`.
+Or:
 
-> 💡 This is why keeping the same hostname/username helps.
+```bash
+rm ~/.ssh/known_hosts
+```
+
+Reconnect and accept the new key.
 
 ---
 
-### AP isn't showing up
+### AP not showing
 
 ```bash
 sudo piap
@@ -195,36 +188,33 @@ pistatus
 
 ---
 
-### hostapd fails to start
+### hostapd fails
 
 ```bash
 sudo journalctl -u hostapd --no-pager -n 30
 ```
 
-Usually `wlan0` is being held by NetworkManager or wpa_supplicant.  
-`piap` normally fixes it — otherwise just reboot.
+Usually `wlan0` is being held by something else. Reboot if needed.
 
 ---
 
-### Can't SSH after connecting to the AP
+### Can't SSH on AP
 
-Make sure you're using:
+Use:
 
 ```bash
 ssh francis@10.0.0.1
 ```
 
-(not the hostname)
-
 ---
 
-### AP didn't come back after disconnect
+### AP didn’t come back
 
 ```bash
 sudo piap
 ```
 
-Or just wait — watcher checks every ~10 seconds.
+Watcher will also bring it back automatically.
 
 ---
 
