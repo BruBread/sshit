@@ -187,11 +187,27 @@ ok "State file written"
 cat > "$INSTALL_DIR/ap_start.sh" << EOF
 #!/bin/bash
 source ${INSTALL_DIR}/ap_state
-pkill hostapd 2>/dev/null; pkill dnsmasq 2>/dev/null; sleep 1
+
+# Kill anything holding wlan0
+pkill hostapd 2>/dev/null
+pkill dnsmasq 2>/dev/null
+pkill wpa_supplicant 2>/dev/null
+sleep 1
+
+# Tell NetworkManager to hands off wlan0
+if command -v nmcli &>/dev/null; then
+    nmcli device set "\$AP_IFACE" managed no 2>/dev/null || true
+fi
+
+# Bring up wlan0 and configure AP
+ip link set "\$AP_IFACE" down
+sleep 1
 ip link set "\$AP_IFACE" up
 ip addr flush dev "\$AP_IFACE"
 ip addr add "\$AP_IP/24" dev "\$AP_IFACE"
 echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# Start hostapd and dnsmasq
 hostapd ${INSTALL_DIR}/hostapd.conf -B
 sleep 1
 dnsmasq --conf-file=${INSTALL_DIR}/dnsmasq.conf
@@ -240,12 +256,13 @@ divider
 cat > /etc/systemd/system/piaccess.service << EOF
 [Unit]
 Description=SSHit Wi-Fi AP
-After=network.target
+After=network.target network-online.target
+Wants=network-online.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStartPre=/bin/sleep 5
+ExecStartPre=/bin/sleep 10
 ExecStart=/bin/bash ${INSTALL_DIR}/ap_start.sh
 ExecStop=/bin/bash ${INSTALL_DIR}/ap_stop.sh
 
