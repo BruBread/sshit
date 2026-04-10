@@ -22,7 +22,7 @@ You only need to SSH in the old way once to run the installer. After that, you n
 
 Download and flash **Raspberry Pi OS Lite (64-bit)** using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 
-Click the gear icon ⚙️ before flashing and set:
+Click the Raspberry pi 4 -> other os -> debian 64 lite:
 - **Hostname:** `francispi` (or whatever you want — just keep it the same each time)
 - **Username:** `francis` (or whatever you want — **keep this the same too!**)
 - **Password** (remember this)
